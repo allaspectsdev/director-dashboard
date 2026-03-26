@@ -77,6 +77,8 @@ export async function createTask(data: {
   projectId?: number | null;
   milestoneId?: number | null;
   conversationId?: number | null;
+  isRecurring?: boolean;
+  recurrenceRule?: string | null;
 }) {
   const result = await db
     .insert(tasks)
@@ -89,6 +91,8 @@ export async function createTask(data: {
       projectId: data.projectId || null,
       milestoneId: data.milestoneId || null,
       conversationId: data.conversationId || null,
+      isRecurring: data.isRecurring || false,
+      recurrenceRule: data.recurrenceRule || null,
     })
     .returning();
 
@@ -107,6 +111,8 @@ export async function updateTask(
     dueDate?: string | null;
     projectId?: number | null;
     milestoneId?: number | null;
+    isRecurring?: boolean;
+    recurrenceRule?: string | null;
   }
 ) {
   const updateData: Record<string, unknown> = {

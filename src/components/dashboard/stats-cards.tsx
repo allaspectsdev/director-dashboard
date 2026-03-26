@@ -1,10 +1,12 @@
-import { FolderKanban, CheckSquare, Target, MessageSquare } from "lucide-react";
+import { FolderKanban, CheckSquare, Target, MessageSquare, AlertTriangle, Clock } from "lucide-react";
 
 interface StatsCardsProps {
   activeProjects: number;
   openTasks: number;
   activeGoals: number;
   openConversations: number;
+  overdueTasks?: number;
+  dueTodayTasks?: number;
 }
 
 const stats = [
@@ -44,27 +46,49 @@ const stats = [
 
 export function StatsCards(props: StatsCardsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {stats.map((stat) => (
-        <div
-          key={stat.key}
-          className={`relative overflow-hidden rounded-xl border ${stat.borderAccent} bg-gradient-to-br ${stat.gradient} p-4 transition-all duration-300 hover:scale-[1.02]`}
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[32px] font-bold tracking-tight leading-none">
-                {props[stat.key]}
-              </p>
-              <p className="mt-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {stat.label}
-              </p>
-            </div>
-            <div className={`${stat.iconColor} opacity-60`}>
-              <stat.icon className="h-5 w-5" strokeWidth={1.5} />
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.key}
+            className={`relative overflow-hidden rounded-xl border ${stat.borderAccent} bg-gradient-to-br ${stat.gradient} p-4 transition-all duration-300 hover:scale-[1.02]`}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[32px] font-bold tracking-tight leading-none">
+                  {props[stat.key]}
+                </p>
+                <p className="mt-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {stat.label}
+                </p>
+              </div>
+              <div className={`${stat.iconColor} opacity-60`}>
+                <stat.icon className="h-5 w-5" strokeWidth={1.5} />
+              </div>
             </div>
           </div>
+        ))}
+      </div>
+      {((props.overdueTasks ?? 0) > 0 || (props.dueTodayTasks ?? 0) > 0) && (
+        <div className="flex gap-3">
+          {(props.overdueTasks ?? 0) > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-200/60 dark:border-red-500/20 bg-red-50/50 dark:bg-red-950/20 px-3 py-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
+              <span className="text-[12px] font-medium text-red-600 dark:text-red-400">
+                {props.overdueTasks} overdue {props.overdueTasks === 1 ? "task" : "tasks"}
+              </span>
+            </div>
+          )}
+          {(props.dueTodayTasks ?? 0) > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border border-amber-200/60 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-2">
+              <Clock className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-[12px] font-medium text-amber-600 dark:text-amber-400">
+                {props.dueTodayTasks} due today
+              </span>
+            </div>
+          )}
         </div>
-      ))}
+      )}
     </div>
   );
 }

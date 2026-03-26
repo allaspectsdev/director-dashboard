@@ -61,6 +61,18 @@ export const CONVERSATION_STATUS_COLORS: Record<string, string> = {
   resolved: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
 };
 
+export const MILESTONE_STATUS_COLORS: Record<string, string> = {
+  pending: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  "in-progress": "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+};
+
+export const GOAL_STATUS_COLORS: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  completed: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  abandoned: "bg-red-100 text-red-500 dark:bg-red-950 dark:text-red-400",
+};
+
 export const ENTRY_TYPE_COLORS: Record<string, string> = {
   note: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
   "action-item": "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",

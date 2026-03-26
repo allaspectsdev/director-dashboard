@@ -10,13 +10,16 @@ import { Pin, PinOff, Trash2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Note } from "@/types";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface NoteCardProps {
   note: Note;
+  autoEdit?: boolean;
 }
 
-export function NoteCard({ note }: NoteCardProps) {
-  const [editing, setEditing] = useState(false);
+export function NoteCard({ note, autoEdit = false }: NoteCardProps) {
+  const [editing, setEditing] = useState(autoEdit);
   const [title, setTitle] = useState(note.title || "");
   const [content, setContent] = useState(note.content);
 
@@ -104,12 +107,14 @@ export function NoteCard({ note }: NoteCardProps) {
           onBlur={handleSave}
         />
       ) : (
-        <p
-          className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap cursor-pointer"
+        <div
+          className="text-sm text-muted-foreground line-clamp-6 cursor-pointer prose prose-sm dark:prose-invert prose-p:my-1 prose-headings:my-1 prose-ul:my-1 prose-ol:my-1 max-w-none"
           onClick={() => setEditing(true)}
         >
-          {note.content}
-        </p>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {note.content}
+          </ReactMarkdown>
+        </div>
       )}
 
       <div className="mt-2 flex items-center gap-2">

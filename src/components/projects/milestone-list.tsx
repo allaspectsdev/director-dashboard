@@ -110,7 +110,7 @@ export function MilestoneList({ milestones, projectId }: MilestoneListProps) {
             <div
               key={ms.id}
               className={cn(
-                "flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors",
+                "group flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors",
                 ms.status === "completed" && "opacity-60"
               )}
             >
@@ -135,7 +135,7 @@ export function MilestoneList({ milestones, projectId }: MilestoneListProps) {
                   {formatDateShort(ms.targetDate)}
                 </span>
               )}
-              <StatusBadge type="task" value={ms.status} />
+              <StatusBadge type="milestone" value={ms.status} />
               <Button
                 variant="ghost"
                 size="icon"

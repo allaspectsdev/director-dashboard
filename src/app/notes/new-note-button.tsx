@@ -3,12 +3,14 @@
 import { createNote } from "@/actions/notes";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function NewNoteButton() {
+  const router = useRouter();
+
   async function handleClick() {
-    await createNote({ content: "" });
-    toast.success("Note created");
+    await createNote({ content: "New note..." });
+    router.refresh();
   }
 
   return (

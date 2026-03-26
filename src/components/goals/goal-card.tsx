@@ -48,7 +48,7 @@ export function GoalCard({ goal, allProjects }: GoalCardProps) {
             <div>
               <h3 className="text-sm font-semibold">{goal.title}</h3>
               <StatusBadge
-                type="project"
+                type="goal"
                 value={goal.status}
                 className="mt-0.5"
               />

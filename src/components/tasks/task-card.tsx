@@ -14,15 +14,20 @@ import {
 import { Check, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { Task, Project } from "@/types";
+import type { Task, Project, Tag } from "@/types";
 import { TaskForm } from "./task-form";
+import { TagPicker } from "@/components/shared/tag-picker";
+import { TagBadge } from "@/components/shared/tag-badge";
+import { Repeat } from "lucide-react";
+import { formatRecurrenceLabel, parseRecurrenceRule } from "@/lib/recurrence";
 
 interface TaskCardProps {
   task: Task;
   projects?: Project[];
+  tags?: Tag[];
 }
 
-export function TaskCard({ task, projects }: TaskCardProps) {
+export function TaskCard({ task, projects, tags = [] }: TaskCardProps) {
   const [editOpen, setEditOpen] = useState(false);
 
   async function handleToggle() {
@@ -79,6 +84,20 @@ export function TaskCard({ task, projects }: TaskCardProps) {
             <p className="mt-0.5 truncate text-[11px] text-muted-foreground/60">
               {task.description}
             </p>
+          )}
+          {(tags.length > 0 || task.isRecurring) && (
+            <div className="mt-1 flex items-center gap-1.5">
+              {tags.map((tag) => (
+                <TagBadge key={tag.id} tag={tag} size="sm" />
+              ))}
+              {task.isRecurring && (
+                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                  <Repeat className="h-2.5 w-2.5" />
+                  {parseRecurrenceRule(task.recurrenceRule ?? null) &&
+                    formatRecurrenceLabel(parseRecurrenceRule(task.recurrenceRule ?? null)!)}
+                </span>
+              )}
+            </div>
           )}
         </div>
 

@@ -8,6 +8,7 @@ import { QuickAdd } from "@/components/dashboard/quick-add";
 import { db } from "@/db";
 import { projects, tasks, goals, conversations } from "@/db/schema";
 import { eq, sql, count, asc, desc } from "drizzle-orm";
+import { AlertTriangle, Clock } from "lucide-react";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -36,6 +37,20 @@ async function getDashboardData() {
     .select({ count: count() })
     .from(conversations)
     .where(sql`${conversations.status} != 'resolved'`);
+
+  const [overdueStats] = await db
+    .select({ count: count() })
+    .from(tasks)
+    .where(
+      sql`${tasks.status} != 'done' AND ${tasks.dueDate} IS NOT NULL AND ${tasks.dueDate} < date('now')`
+    );
+
+  const [dueTodayStats] = await db
+    .select({ count: count() })
+    .from(tasks)
+    .where(
+      sql`${tasks.status} != 'done' AND ${tasks.dueDate} = date('now')`
+    );
 
   const upcomingTasks = await db
     .select()
@@ -101,6 +116,8 @@ async function getDashboardData() {
       openTasks: taskStats?.count ?? 0,
       activeGoals: goalStats?.count ?? 0,
       openConversations: convoStats?.count ?? 0,
+      overdueTasks: overdueStats?.count ?? 0,
+      dueTodayTasks: dueTodayStats?.count ?? 0,
     },
     upcomingTasks,
     activeProjectsWithStats,

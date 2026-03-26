@@ -6,6 +6,8 @@ import {
   PRIORITY_COLORS,
   CONVERSATION_STATUS_COLORS,
   ENTRY_TYPE_COLORS,
+  MILESTONE_STATUS_COLORS,
+  GOAL_STATUS_COLORS,
 } from "@/lib/constants";
 
 const COLOR_MAPS: Record<string, Record<string, string>> = {
@@ -14,6 +16,8 @@ const COLOR_MAPS: Record<string, Record<string, string>> = {
   priority: PRIORITY_COLORS,
   conversation: CONVERSATION_STATUS_COLORS,
   entry: ENTRY_TYPE_COLORS,
+  milestone: MILESTONE_STATUS_COLORS,
+  goal: GOAL_STATUS_COLORS,
 };
 
 interface StatusBadgeProps {

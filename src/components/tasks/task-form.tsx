@@ -24,6 +24,8 @@ import { TASK_STATUSES, PRIORITIES } from "@/lib/constants";
 import { toast } from "sonner";
 import type { Task, Project } from "@/types";
 import { Plus } from "lucide-react";
+import { RecurrencePicker } from "./recurrence-picker";
+import { parseRecurrenceRule, type RecurrenceRule } from "@/lib/recurrence";
 
 interface TaskFormProps {
   task?: Task;
@@ -42,6 +44,9 @@ export function TaskForm({
 }: TaskFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(
+    task ? parseRecurrenceRule(task.recurrenceRule ?? null) : null
+  );
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -61,6 +66,8 @@ export function TaskForm({
       projectId: formData.get("projectId")
         ? Number(formData.get("projectId"))
         : null,
+      isRecurring: !!recurrenceRule,
+      recurrenceRule: recurrenceRule ? JSON.stringify(recurrenceRule) : null,
     };
 
     try {
@@ -188,6 +195,8 @@ export function TaskForm({
               </div>
             )}
           </div>
+
+          <RecurrencePicker value={recurrenceRule} onChange={setRecurrenceRule} />
 
           <div className="flex justify-end gap-2 pt-2">
             <Button

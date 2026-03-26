@@ -29,9 +29,11 @@ export function SortableList<T extends { id: number }>({
   children,
 }: SortableListProps<T>) {
   const [items, setItems] = useState(initialItems);
+  const [prevInitial, setPrevInitial] = useState(initialItems);
 
   // Sync with server data when it changes
-  if (initialItems !== items && initialItems.length !== items.length) {
+  if (initialItems !== prevInitial) {
+    setPrevInitial(initialItems);
     setItems(initialItems);
   }
 
