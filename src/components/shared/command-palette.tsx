@@ -22,6 +22,10 @@ import {
   StickyNote,
   Plus,
   Search,
+  Shield,
+  Brain,
+  Building2,
+  Users,
 } from "lucide-react";
 import { globalSearch } from "@/actions/search";
 import type { Task, Project, Conversation, Note } from "@/types";
@@ -31,9 +35,13 @@ const navItems = [
   { name: "Projects", href: "/projects", icon: FolderKanban, shortcut: "2" },
   { name: "Tasks", href: "/tasks", icon: CheckSquare, shortcut: "3" },
   { name: "Goals", href: "/goals", icon: Target, shortcut: "4" },
-  { name: "Weekly Review", href: "/review", icon: ClipboardCheck, shortcut: "5" },
-  { name: "Conversations", href: "/conversations", icon: MessageSquare, shortcut: "6" },
-  { name: "Notes", href: "/notes", icon: StickyNote, shortcut: "7" },
+  { name: "Security", href: "/security", icon: Shield, shortcut: "5" },
+  { name: "AI Initiatives", href: "/ai", icon: Brain, shortcut: "6" },
+  { name: "Vendors", href: "/vendors", icon: Building2, shortcut: "7" },
+  { name: "Team", href: "/team", icon: Users, shortcut: "8" },
+  { name: "Weekly Review", href: "/review", icon: ClipboardCheck, shortcut: "9" },
+  { name: "Conversations", href: "/conversations", icon: MessageSquare },
+  { name: "Notes", href: "/notes", icon: StickyNote },
 ];
 
 interface SearchResults {
@@ -65,7 +73,7 @@ export function CommandPalette() {
 
       if (!isInput && !e.metaKey && !e.ctrlKey) {
         const num = parseInt(e.key);
-        if (num >= 1 && num <= 7) {
+        if (num >= 1 && num <= 9 && num <= navItems.length) {
           router.push(navItems[num - 1].href);
         }
       }

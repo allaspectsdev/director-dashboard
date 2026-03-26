@@ -8,6 +8,10 @@ import {
   ENTRY_TYPE_COLORS,
   MILESTONE_STATUS_COLORS,
   GOAL_STATUS_COLORS,
+  SECURITY_STATUS_COLORS,
+  SECURITY_SEVERITY_COLORS,
+  AI_STATUS_COLORS,
+  VENDOR_STATUS_COLORS,
 } from "@/lib/constants";
 
 const COLOR_MAPS: Record<string, Record<string, string>> = {
@@ -18,6 +22,10 @@ const COLOR_MAPS: Record<string, Record<string, string>> = {
   entry: ENTRY_TYPE_COLORS,
   milestone: MILESTONE_STATUS_COLORS,
   goal: GOAL_STATUS_COLORS,
+  "security-status": SECURITY_STATUS_COLORS,
+  "security-severity": SECURITY_SEVERITY_COLORS,
+  "ai-status": AI_STATUS_COLORS,
+  "vendor-status": VENDOR_STATUS_COLORS,
 };
 
 interface StatusBadgeProps {

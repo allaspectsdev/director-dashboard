@@ -13,6 +13,11 @@ import {
   tags,
   entityTags,
   taskDependencies,
+  securityItems,
+  aiInitiatives,
+  vendors,
+  teamMembers,
+  oneOnOnes,
 } from "@/db/schema";
 
 export type Project = InferSelectModel<typeof projects>;
@@ -53,3 +58,21 @@ export type Tag = InferSelectModel<typeof tags>;
 export type NewTag = InferInsertModel<typeof tags>;
 export type EntityTag = InferSelectModel<typeof entityTags>;
 export type TaskDependency = InferSelectModel<typeof taskDependencies>;
+
+export type SecurityItem = InferSelectModel<typeof securityItems>;
+export type NewSecurityItem = InferInsertModel<typeof securityItems>;
+export type SecurityCategory = SecurityItem["category"];
+export type SecuritySeverity = SecurityItem["severity"];
+export type SecurityStatus = SecurityItem["status"];
+
+export type AiInitiative = InferSelectModel<typeof aiInitiatives>;
+export type NewAiInitiative = InferInsertModel<typeof aiInitiatives>;
+
+export type Vendor = InferSelectModel<typeof vendors>;
+export type NewVendor = InferInsertModel<typeof vendors>;
+
+export type TeamMember = InferSelectModel<typeof teamMembers>;
+export type NewTeamMember = InferInsertModel<typeof teamMembers>;
+
+export type OneOnOne = InferSelectModel<typeof oneOnOnes>;
+export type NewOneOnOne = InferInsertModel<typeof oneOnOnes>;

@@ -80,6 +80,105 @@ export const ENTRY_TYPE_COLORS: Record<string, string> = {
   "follow-up": "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
 };
 
+// ========== Security & Compliance ==========
+
+export const SECURITY_CATEGORIES = [
+  "incident", "vulnerability", "audit", "compliance", "policy", "training",
+] as const;
+
+export const SECURITY_SEVERITIES = [
+  "critical", "high", "medium", "low", "info",
+] as const;
+
+export const SECURITY_STATUSES = [
+  "open", "in-progress", "mitigated", "resolved", "accepted",
+] as const;
+
+export const SECURITY_SEVERITY_COLORS: Record<string, string> = {
+  critical: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  high: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  medium: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  low: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  info: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+};
+
+export const SECURITY_STATUS_COLORS: Record<string, string> = {
+  open: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  "in-progress": "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  mitigated: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  resolved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  accepted: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+};
+
+export const SECURITY_CATEGORY_COLORS: Record<string, string> = {
+  incident: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  vulnerability: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  audit: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  compliance: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  policy: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
+  training: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+};
+
+// ========== AI Initiatives ==========
+
+export const AI_CATEGORIES = [
+  "production", "pilot", "experiment", "research", "tool",
+] as const;
+
+export const AI_STATUSES = [
+  "ideation", "development", "testing", "deployed", "retired",
+] as const;
+
+export const AI_STATUS_COLORS: Record<string, string> = {
+  ideation: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  development: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  testing: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  deployed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  retired: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+};
+
+export const AI_CATEGORY_COLORS: Record<string, string> = {
+  production: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  pilot: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  experiment: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  research: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
+  tool: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+};
+
+// ========== Vendors ==========
+
+export const VENDOR_CATEGORIES = [
+  "saas", "infrastructure", "security", "ai-ml", "consulting", "hardware", "other",
+] as const;
+
+export const VENDOR_STATUSES = [
+  "active", "evaluating", "inactive", "cancelled",
+] as const;
+
+export const VENDOR_STATUS_COLORS: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  evaluating: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  inactive: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+  cancelled: "bg-red-100 text-red-500 dark:bg-red-950 dark:text-red-400",
+};
+
+// ========== Team ==========
+
+export const TEAM_DEPARTMENTS = [
+  "it", "security", "ai", "engineering", "other",
+] as const;
+
+export const TEAM_MEMBER_STATUSES = [
+  "active", "on-leave", "offboarded",
+] as const;
+
+export const MOOD_COLORS: Record<string, string> = {
+  great: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  good: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  okay: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  struggling: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+};
+
 export const PROJECT_COLORS = [
   "#6366f1", // indigo
   "#8b5cf6", // violet

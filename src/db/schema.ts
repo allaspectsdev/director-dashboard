@@ -251,6 +251,114 @@ export const taskDependencies = sqliteTable(
   ]
 );
 
+// ========== Security & Compliance ==========
+
+export const securityItems = sqliteTable("security_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: text("category", {
+    enum: ["incident", "vulnerability", "audit", "compliance", "policy", "training"],
+  }).notNull().default("compliance"),
+  severity: text("severity", {
+    enum: ["critical", "high", "medium", "low", "info"],
+  }).notNull().default("medium"),
+  status: text("status", {
+    enum: ["open", "in-progress", "mitigated", "resolved", "accepted"],
+  }).notNull().default("open"),
+  framework: text("framework"), // e.g. HIPAA, SOC2, NIST, ISO27001
+  dueDate: text("due_date"),
+  resolvedDate: text("resolved_date"),
+  assignee: text("assignee"),
+  projectId: integer("project_id").references(() => projects.id, { onDelete: "set null" }),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+// ========== AI Initiatives ==========
+
+export const aiInitiatives = sqliteTable("ai_initiatives", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category", {
+    enum: ["production", "pilot", "experiment", "research", "tool"],
+  }).notNull().default("experiment"),
+  status: text("status", {
+    enum: ["ideation", "development", "testing", "deployed", "retired"],
+  }).notNull().default("ideation"),
+  model: text("model"), // e.g. GPT-4, Claude, custom model
+  department: text("department"), // which team uses this
+  impact: text("impact"), // description of business impact
+  roiEstimate: text("roi_estimate"),
+  projectId: integer("project_id").references(() => projects.id, { onDelete: "set null" }),
+  startDate: text("start_date"),
+  launchDate: text("launch_date"),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+// ========== Vendors & Budget ==========
+
+export const vendors = sqliteTable("vendors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category", {
+    enum: ["saas", "infrastructure", "security", "ai-ml", "consulting", "hardware", "other"],
+  }).notNull().default("saas"),
+  status: text("status", {
+    enum: ["active", "evaluating", "inactive", "cancelled"],
+  }).notNull().default("active"),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  website: text("website"),
+  contractStart: text("contract_start"),
+  contractEnd: text("contract_end"),
+  annualCost: integer("annual_cost"), // in cents for precision
+  monthlyCost: integer("monthly_cost"),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+// ========== Team & 1:1s ==========
+
+export const teamMembers = sqliteTable("team_members", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  department: text("department", {
+    enum: ["it", "security", "ai", "engineering", "other"],
+  }).notNull().default("it"),
+  email: text("email"),
+  startDate: text("start_date"),
+  status: text("status", {
+    enum: ["active", "on-leave", "offboarded"],
+  }).notNull().default("active"),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const oneOnOnes = sqliteTable("one_on_ones", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  teamMemberId: integer("team_member_id")
+    .notNull()
+    .references(() => teamMembers.id, { onDelete: "cascade" }),
+  meetingDate: text("meeting_date").notNull(),
+  mood: text("mood", {
+    enum: ["great", "good", "okay", "struggling"],
+  }),
+  notes: text("notes"),
+  actionItems: text("action_items"), // JSON array of action items
+  followUps: text("follow_ups"), // JSON array of follow-up items
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+// ========== Notes (existing) ==========
+
 export const notes = sqliteTable("notes", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title"),
