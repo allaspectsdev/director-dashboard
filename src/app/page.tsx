@@ -8,9 +8,10 @@ import { SecuritySummary } from "@/components/dashboard/security-summary";
 import { AiSummary } from "@/components/dashboard/ai-summary";
 import { VendorSummary } from "@/components/dashboard/vendor-summary";
 import { TeamSummary } from "@/components/dashboard/team-summary";
+import { RiskSummary } from "@/components/dashboard/risk-summary";
 import { QuickAdd } from "@/components/dashboard/quick-add";
 import { db } from "@/db";
-import { projects, tasks, goals, conversations, securityItems, aiInitiatives, vendors, teamMembers } from "@/db/schema";
+import { projects, tasks, goals, conversations, securityItems, aiInitiatives, vendors, teamMembers, risks } from "@/db/schema";
 import { eq, sql, count, asc, desc, sum } from "drizzle-orm";
 
 function getGreeting(): string {
@@ -126,6 +127,37 @@ async function getDashboardData() {
       activeCount: teamActive?.count ?? 0,
       byDepartment: teamByDept,
     },
+    risk: await getRiskDashboardData(),
+  };
+}
+
+async function getRiskDashboardData() {
+  const openRisks = await db.select().from(risks).where(sql`${risks.status} != 'closed'`)
+    .orderBy(desc(sql`${risks.likelihood} * ${risks.impact}`)).limit(5);
+
+  let critical = 0, high = 0, medium = 0, low = 0;
+  for (const risk of openRisks) {
+    const score = risk.likelihood * risk.impact;
+    if (score >= 20) critical++;
+    else if (score >= 12) high++;
+    else if (score >= 6) medium++;
+    else low++;
+  }
+
+  // Count total (not just top 5)
+  const allOpen = await db.select().from(risks).where(sql`${risks.status} != 'closed'`);
+  let tCrit = 0, tHigh = 0, tMed = 0, tLow = 0;
+  for (const r of allOpen) {
+    const s = r.likelihood * r.impact;
+    if (s >= 20) tCrit++;
+    else if (s >= 12) tHigh++;
+    else if (s >= 6) tMed++;
+    else tLow++;
+  }
+
+  return {
+    risks: openRisks,
+    stats: { critical: tCrit, high: tHigh, medium: tMed, low: tLow, total: allOpen.length },
   };
 }
 
@@ -159,6 +191,9 @@ export default async function DashboardPage() {
             </div>
             <div className="animate-fade-up stagger-5">
               <SecuritySummary items={data.security.items} stats={data.security.stats} />
+            </div>
+            <div className="animate-fade-up stagger-6">
+              <RiskSummary {...data.risk} />
             </div>
             <div className="animate-fade-up stagger-7">
               <RecentConversations conversations={data.recentConvos} />

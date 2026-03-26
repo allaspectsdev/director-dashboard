@@ -15,6 +15,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
+import { CopyDigestButton } from "@/components/review/copy-digest-button";
 
 interface Props {
   searchParams: Promise<{ week?: string }>;
@@ -33,7 +34,9 @@ export default async function ReviewPage({ searchParams }: Props) {
         title="Weekly Review"
         description="Reflect on progress and plan ahead."
         serif
-      />
+      >
+        <CopyDigestButton digest={generateDigest(data, weekLabel)} />
+      </Header>
 
       {/* Week picker */}
       <div className="mt-6 flex items-center gap-3 animate-fade-up stagger-1">
@@ -211,6 +214,49 @@ export default async function ReviewPage({ searchParams }: Props) {
       </div>
     </div>
   );
+}
+
+function generateDigest(data: Awaited<ReturnType<typeof getWeeklyReview>>, weekLabel: string): string {
+  const lines: string[] = [];
+  lines.push(`Technology Update — ${weekLabel}`);
+  lines.push("=".repeat(40));
+  lines.push("");
+
+  lines.push(`Summary: ${data.tasksCompleted.length} completed | ${data.tasksCreated.length} created | ${data.tasksOverdue.length} overdue | ${data.milestonesCompleted.length} milestones hit`);
+  lines.push("");
+
+  if (data.completedByProject.length > 0) {
+    lines.push("COMPLETED THIS WEEK:");
+    for (const { project, tasks } of data.completedByProject) {
+      lines.push(`  ${project?.name || "General"}:`);
+      for (const task of tasks) {
+        lines.push(`    - ${task.title}`);
+      }
+    }
+    lines.push("");
+  }
+
+  if (data.upcomingTasks.length > 0 || data.upcomingMilestones.length > 0) {
+    lines.push("COMING NEXT WEEK:");
+    for (const ms of data.upcomingMilestones) {
+      lines.push(`  [Milestone] ${ms.title}${ms.targetDate ? ` (${formatDateShort(ms.targetDate)})` : ""}`);
+    }
+    for (const task of data.upcomingTasks) {
+      lines.push(`  - ${task.title}${task.dueDate ? ` (${formatDateShort(task.dueDate)})` : ""}`);
+    }
+    lines.push("");
+  }
+
+  if (data.tasksOverdue.length > 0) {
+    lines.push("NEEDS ATTENTION (Overdue):");
+    for (const task of data.tasksOverdue) {
+      lines.push(`  - ${task.title} (due ${formatDateShort(task.dueDate)})`);
+    }
+    lines.push("");
+  }
+
+  lines.push("— Ryan Decker, Director of Technology");
+  return lines.join("\n");
 }
 
 function StatCard({
