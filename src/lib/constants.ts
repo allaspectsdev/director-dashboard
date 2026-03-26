@@ -179,6 +179,41 @@ export const MOOD_COLORS: Record<string, string> = {
   struggling: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
 };
 
+// ========== Risk Register ==========
+
+export const RISK_CATEGORIES = [
+  "operational", "security", "compliance", "financial", "strategic", "technology",
+] as const;
+
+export const RISK_STATUSES = [
+  "identified", "assessing", "mitigating", "monitoring", "closed",
+] as const;
+
+export const RISK_STATUS_COLORS: Record<string, string> = {
+  identified: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  assessing: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  mitigating: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  monitoring: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  closed: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+};
+
+export const RISK_CATEGORY_COLORS: Record<string, string> = {
+  operational: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  security: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  compliance: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  financial: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  strategic: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  technology: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
+};
+
+export function getRiskLevel(likelihood: number, impact: number): { label: string; color: string } {
+  const score = likelihood * impact;
+  if (score >= 20) return { label: "Critical", color: "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950" };
+  if (score >= 12) return { label: "High", color: "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950" };
+  if (score >= 6) return { label: "Medium", color: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950" };
+  return { label: "Low", color: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950" };
+}
+
 export const PROJECT_COLORS = [
   "#6366f1", // indigo
   "#8b5cf6", // violet

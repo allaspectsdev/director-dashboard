@@ -22,8 +22,8 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Tech Director — Command Center",
-  description: "Personal project & task management for Director of Technology",
+  title: "Avery Bio — Director of Technology Command Center",
+  description: "IT, AI, and Cybersecurity leadership command center for Avery Bio",
 };
 
 export default function RootLayout({

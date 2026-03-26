@@ -357,6 +357,28 @@ export const oneOnOnes = sqliteTable("one_on_ones", {
   updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
 });
 
+// ========== Risk Register ==========
+
+export const risks = sqliteTable("risks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: text("category", {
+    enum: ["operational", "security", "compliance", "financial", "strategic", "technology"],
+  }).notNull().default("operational"),
+  likelihood: integer("likelihood").notNull().default(3), // 1-5
+  impact: integer("impact").notNull().default(3), // 1-5
+  status: text("status", {
+    enum: ["identified", "assessing", "mitigating", "monitoring", "closed"],
+  }).notNull().default("identified"),
+  mitigationPlan: text("mitigation_plan"),
+  owner: text("owner"),
+  projectId: integer("project_id").references(() => projects.id, { onDelete: "set null" }),
+  reviewDate: text("review_date"),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
 // ========== Notes (existing) ==========
 
 export const notes = sqliteTable("notes", {

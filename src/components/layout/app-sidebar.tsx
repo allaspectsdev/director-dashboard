@@ -15,6 +15,7 @@ import {
   Brain,
   Building2,
   Users,
+  ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
@@ -38,6 +39,7 @@ const navSections = [
     label: "Leadership",
     items: [
       { href: "/security", label: "Security", icon: Shield },
+      { href: "/risks", label: "Risk Register", icon: ShieldAlert },
       { href: "/ai", label: "AI Initiatives", icon: Brain },
       { href: "/vendors", label: "Vendors", icon: Building2 },
       { href: "/team", label: "Team", icon: Users },
@@ -66,10 +68,10 @@ export function AppSidebar() {
           </div>
           <div>
             <h1 className="font-heading text-[17px] leading-tight tracking-tight text-sidebar-foreground">
-              Command
+              Avery Bio
             </h1>
             <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground/40">
-              Director of Tech
+              Director of Technology
             </p>
           </div>
         </div>
@@ -132,7 +134,7 @@ export function AppSidebar() {
         </button>
         <div className="flex items-center justify-between px-1">
           <span className="text-[11px] font-medium text-sidebar-foreground/35">
-            v1.0
+            v2.0
           </span>
           <ThemeToggle />
         </div>

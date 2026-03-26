@@ -18,6 +18,7 @@ import {
   vendors,
   teamMembers,
   oneOnOnes,
+  risks,
 } from "@/db/schema";
 
 export type Project = InferSelectModel<typeof projects>;
@@ -76,3 +77,6 @@ export type NewTeamMember = InferInsertModel<typeof teamMembers>;
 
 export type OneOnOne = InferSelectModel<typeof oneOnOnes>;
 export type NewOneOnOne = InferInsertModel<typeof oneOnOnes>;
+
+export type Risk = InferSelectModel<typeof risks>;
+export type NewRisk = InferInsertModel<typeof risks>;
