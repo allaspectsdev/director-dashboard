@@ -10,6 +10,9 @@ import {
   conversationEntries,
   conversationProjects,
   notes,
+  tags,
+  entityTags,
+  taskDependencies,
 } from "@/db/schema";
 
 export type Project = InferSelectModel<typeof projects>;
@@ -45,3 +48,8 @@ export type MilestoneStatus = Milestone["status"];
 export type GoalStatus = Goal["status"];
 export type ConversationStatus = Conversation["status"];
 export type EntryType = ConversationEntry["entryType"];
+
+export type Tag = InferSelectModel<typeof tags>;
+export type NewTag = InferInsertModel<typeof tags>;
+export type EntityTag = InferSelectModel<typeof entityTags>;
+export type TaskDependency = InferSelectModel<typeof taskDependencies>;

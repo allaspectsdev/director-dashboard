@@ -95,6 +95,9 @@ export const tasks = sqliteTable("tasks", {
     { onDelete: "set null" }
   ),
   sortOrder: integer("sort_order").notNull().default(0),
+  recurrenceRule: text("recurrence_rule"),
+  recurrenceSourceId: integer("recurrence_source_id"),
+  isRecurring: integer("is_recurring", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),
@@ -192,6 +195,58 @@ export const conversationProjects = sqliteTable(
     uniqueIndex("conversation_projects_unique").on(
       table.conversationId,
       table.projectId
+    ),
+  ]
+);
+
+export const tags = sqliteTable("tags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  color: text("color").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const entityTags = sqliteTable(
+  "entity_tags",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    tagId: integer("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+    entityType: text("entity_type", {
+      enum: ["task", "project", "conversation"],
+    }).notNull(),
+    entityId: integer("entity_id").notNull(),
+  },
+  (table) => [
+    uniqueIndex("entity_tags_unique").on(
+      table.tagId,
+      table.entityType,
+      table.entityId
+    ),
+  ]
+);
+
+export const taskDependencies = sqliteTable(
+  "task_dependencies",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    taskId: integer("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    blockedByTaskId: integer("blocked_by_task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(CURRENT_TIMESTAMP)`),
+  },
+  (table) => [
+    uniqueIndex("task_dependencies_unique").on(
+      table.taskId,
+      table.blockedByTaskId
     ),
   ]
 );

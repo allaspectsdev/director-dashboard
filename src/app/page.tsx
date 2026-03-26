@@ -1,103 +1,154 @@
-import Image from "next/image";
+import { Header } from "@/components/layout/header";
+import { StatsCards } from "@/components/dashboard/stats-cards";
+import { RecentTasks } from "@/components/dashboard/recent-tasks";
+import { ActiveProjects } from "@/components/dashboard/active-projects";
+import { GoalsProgress } from "@/components/dashboard/goals-progress";
+import { RecentConversations } from "@/components/dashboard/recent-conversations";
+import { QuickAdd } from "@/components/dashboard/quick-add";
+import { db } from "@/db";
+import { projects, tasks, goals, conversations } from "@/db/schema";
+import { eq, sql, count, asc, desc } from "drizzle-orm";
 
-export default function Home() {
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+async function getDashboardData() {
+  const [projectStats] = await db
+    .select({ count: count() })
+    .from(projects)
+    .where(eq(projects.status, "active"));
+
+  const [taskStats] = await db
+    .select({ count: count() })
+    .from(tasks)
+    .where(sql`${tasks.status} != 'done'`);
+
+  const [goalStats] = await db
+    .select({ count: count() })
+    .from(goals)
+    .where(eq(goals.status, "active"));
+
+  const [convoStats] = await db
+    .select({ count: count() })
+    .from(conversations)
+    .where(sql`${conversations.status} != 'resolved'`);
+
+  const upcomingTasks = await db
+    .select()
+    .from(tasks)
+    .where(sql`${tasks.status} != 'done'`)
+    .orderBy(
+      asc(tasks.dueDate),
+      desc(
+        sql`CASE ${tasks.priority} WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END`
+      )
+    )
+    .limit(5);
+
+  const activeProjects = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.status, "active"))
+    .orderBy(desc(projects.updatedAt))
+    .limit(5);
+
+  const activeProjectsWithStats = await Promise.all(
+    activeProjects.map(async (project) => {
+      const [stats] = await db
+        .select({
+          total: count(),
+          completed: count(
+            sql`CASE WHEN ${tasks.status} = 'done' THEN 1 END`
+          ),
+        })
+        .from(tasks)
+        .where(eq(tasks.projectId, project.id));
+
+      return {
+        project,
+        taskCount: stats?.total ?? 0,
+        taskCompleted: stats?.completed ?? 0,
+      };
+    })
+  );
+
+  const activeGoals = await db
+    .select()
+    .from(goals)
+    .where(eq(goals.status, "active"))
+    .limit(5);
+
+  const goalsWithProgress = activeGoals.map((goal) => ({
+    id: goal.id,
+    title: goal.title,
+    computedProgress: goal.progressPercentage,
+  }));
+
+  const recentConvos = await db
+    .select()
+    .from(conversations)
+    .where(sql`${conversations.status} != 'resolved'`)
+    .orderBy(desc(conversations.updatedAt))
+    .limit(5);
+
+  return {
+    stats: {
+      activeProjects: projectStats?.count ?? 0,
+      openTasks: taskStats?.count ?? 0,
+      activeGoals: goalStats?.count ?? 0,
+      openConversations: convoStats?.count ?? 0,
+    },
+    upcomingTasks,
+    activeProjectsWithStats,
+    goalsWithProgress,
+    recentConvos,
+  };
+}
+
+export default async function DashboardPage() {
+  const data = await getDashboardData();
+  const greeting = getGreeting();
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div>
+      <Header
+        title={`${greeting}, Ryan`}
+        description="Here's what needs your attention today."
+        serif
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="mt-8 space-y-8">
+        <div className="animate-fade-up stagger-1">
+          <QuickAdd />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="animate-fade-up stagger-2">
+          <StatsCards {...data.stats} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+          <div className="lg:col-span-3 space-y-6">
+            <div className="animate-fade-up stagger-3">
+              <RecentTasks tasks={data.upcomingTasks} />
+            </div>
+            <div className="animate-fade-up stagger-5">
+              <RecentConversations conversations={data.recentConvos} />
+            </div>
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <div className="animate-fade-up stagger-4">
+              <ActiveProjects projects={data.activeProjectsWithStats} />
+            </div>
+            <div className="animate-fade-up stagger-6">
+              <GoalsProgress goals={data.goalsWithProgress} />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
