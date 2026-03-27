@@ -9,6 +9,7 @@ import { AiSummary } from "@/components/dashboard/ai-summary";
 import { VendorSummary } from "@/components/dashboard/vendor-summary";
 import { TeamSummary } from "@/components/dashboard/team-summary";
 import { RiskSummary } from "@/components/dashboard/risk-summary";
+import { TaskTrendChart } from "@/components/dashboard/task-trend-chart";
 import { QuickAdd } from "@/components/dashboard/quick-add";
 import { db } from "@/db";
 import { projects, tasks, goals, conversations, securityItems, aiInitiatives, vendors, teamMembers, risks } from "@/db/schema";
@@ -128,7 +129,23 @@ async function getDashboardData() {
       byDepartment: teamByDept,
     },
     risk: await getRiskDashboardData(),
+    taskTrend: await getTaskTrendData(),
   };
+}
+
+async function getTaskTrendData() {
+  const weeks: { week: string; completed: number }[] = [];
+  for (let i = 3; i >= 0; i--) {
+    const [result] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(sql`${tasks.completedDate} >= date('now', '-' || ${i * 7 + 7} || ' days') AND ${tasks.completedDate} < date('now', '-' || ${i * 7} || ' days')`);
+    weeks.push({
+      week: `${i === 0 ? "This" : i === 1 ? "Last" : `${i}w ago`}`,
+      completed: result?.count ?? 0,
+    });
+  }
+  return weeks;
 }
 
 async function getRiskDashboardData() {
@@ -178,8 +195,15 @@ export default async function DashboardPage() {
           <QuickAdd />
         </div>
 
-        <div className="animate-fade-up stagger-2">
-          <StatsCards {...data.stats} />
+        <div className="animate-fade-up stagger-2 flex flex-col lg:flex-row gap-4 items-start">
+          <div className="flex-1 w-full">
+            <StatsCards {...data.stats} />
+          </div>
+          {data.taskTrend.some(w => w.completed > 0) && (
+            <div className="w-full lg:w-64 shrink-0">
+              <TaskTrendChart data={data.taskTrend} />
+            </div>
+          )}
         </div>
 
         {/* Main content grid */}

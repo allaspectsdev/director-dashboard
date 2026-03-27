@@ -5,6 +5,7 @@ import { RiskCard } from "@/components/risks/risk-card";
 import { RiskFilters } from "@/components/risks/risk-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getRisks, getRiskStats } from "@/actions/risks";
+import { ScoreChart as RiskScoreChart } from "@/components/risks/score-chart";
 import { ShieldAlert, AlertTriangle, AlertCircle, Info } from "lucide-react";
 
 interface Props {
@@ -64,8 +65,18 @@ export default async function RisksPage({ searchParams }: Props) {
         </div>
       </div>
 
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {stats.total > 0 && (
+        <RiskScoreChart data={[
+          { level: "Critical", count: stats.critical, color: "#ef4444" },
+          { level: "High", count: stats.high, color: "#f97316" },
+          { level: "Medium", count: stats.medium, color: "#eab308" },
+          { level: "Low", count: stats.low, color: "#3b82f6" },
+        ]} />
+      )}
+
       {/* 5x5 Risk Heat Map */}
-      <div className="mt-6 rounded-xl border bg-card p-5">
+      <div className="rounded-xl border bg-card p-5">
         <h3 className="text-sm font-semibold mb-3">Risk Heat Map</h3>
         <div className="grid grid-cols-6 gap-1 text-[10px]">
           {/* Header row */}
@@ -103,6 +114,7 @@ export default async function RisksPage({ searchParams }: Props) {
             </>
           ))}
         </div>
+      </div>
       </div>
 
       <div className="mt-6 space-y-5">

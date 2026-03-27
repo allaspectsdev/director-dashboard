@@ -5,7 +5,11 @@ import { VendorCard } from "@/components/vendors/vendor-card";
 import { VendorFilters } from "@/components/vendors/vendor-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getVendors, getVendorStats } from "@/actions/vendors";
+import { SpendChart } from "@/components/vendors/spend-chart";
 import { Building2, DollarSign, CalendarClock } from "lucide-react";
+import { db } from "@/db";
+import { vendors as vendorTable } from "@/db/schema";
+import { eq, sum } from "drizzle-orm";
 
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -22,13 +26,17 @@ interface Props {
 
 export default async function VendorsPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [vendorList, stats] = await Promise.all([
+  const [vendorList, stats, spendByCategory] = await Promise.all([
     getVendors({
       category: params.category || undefined,
       status: params.status || undefined,
       search: params.search || undefined,
     }),
     getVendorStats(),
+    db.select({ category: vendorTable.category, spend: sum(vendorTable.annualCost) })
+      .from(vendorTable)
+      .where(eq(vendorTable.status, "active"))
+      .groupBy(vendorTable.category),
   ]);
 
   return (
@@ -65,6 +73,12 @@ export default async function VendorsPage({ searchParams }: Props) {
           <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Renewals (90d)</p>
         </div>
       </div>
+
+      {spendByCategory.some(d => d.spend && Number(d.spend) > 0) && (
+        <div className="mt-6">
+          <SpendChart data={spendByCategory.map(d => ({ category: d.category, spend: Number(d.spend || 0) }))} />
+        </div>
+      )}
 
       <div className="mt-6 space-y-5">
         <Suspense>

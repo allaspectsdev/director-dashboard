@@ -5,8 +5,12 @@ import { SecurityCard } from "@/components/security/security-card";
 import { SecurityFilters } from "@/components/security/security-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getSecurityItems, getSecurityStats } from "@/actions/security";
+import { SeverityChart } from "@/components/security/severity-chart";
 import { Shield, AlertTriangle, AlertCircle, Clock } from "lucide-react";
 import type { SecurityCategory, SecuritySeverity, SecurityStatus } from "@/types";
+import { db } from "@/db";
+import { securityItems as secTable } from "@/db/schema";
+import { sql, count as countFn } from "drizzle-orm";
 
 interface Props {
   searchParams: Promise<{ category?: string; severity?: string; status?: string; search?: string }>;
@@ -14,7 +18,7 @@ interface Props {
 
 export default async function SecurityPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [items, stats] = await Promise.all([
+  const [items, stats, severityDist] = await Promise.all([
     getSecurityItems({
       category: params.category as SecurityCategory | undefined,
       severity: params.severity as SecuritySeverity | undefined,
@@ -22,6 +26,10 @@ export default async function SecurityPage({ searchParams }: Props) {
       search: params.search || undefined,
     }),
     getSecurityStats(),
+    db.select({ severity: secTable.severity, count: countFn() })
+      .from(secTable)
+      .where(sql`${secTable.status} NOT IN ('resolved', 'accepted')`)
+      .groupBy(secTable.severity),
   ]);
 
   return (
@@ -64,6 +72,12 @@ export default async function SecurityPage({ searchParams }: Props) {
           <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Overdue</p>
         </div>
       </div>
+
+      {severityDist.length > 0 && (
+        <div className="mt-6">
+          <SeverityChart data={severityDist.map(d => ({ severity: d.severity, count: d.count }))} />
+        </div>
+      )}
 
       <div className="mt-6 space-y-5">
         <Suspense>

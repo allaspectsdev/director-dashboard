@@ -6,7 +6,11 @@ import { AiFilters } from "@/components/ai/ai-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getAiInitiatives, getAiStats } from "@/actions/ai-initiatives";
 import { getVendors } from "@/actions/vendors";
+import { StatusChart as AiStatusChart } from "@/components/ai/status-chart";
 import { Brain, Rocket, FlaskConical } from "lucide-react";
+import { db } from "@/db";
+import { aiInitiatives as aiTable } from "@/db/schema";
+import { count as countFn } from "drizzle-orm";
 
 interface Props {
   searchParams: Promise<{ category?: string; status?: string; search?: string }>;
@@ -14,7 +18,7 @@ interface Props {
 
 export default async function AiPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [initiatives, stats, vendorList] = await Promise.all([
+  const [initiatives, stats, vendorList, aiStatusDist] = await Promise.all([
     getAiInitiatives({
       category: params.category || undefined,
       status: params.status || undefined,
@@ -22,6 +26,7 @@ export default async function AiPage({ searchParams }: Props) {
     }),
     getAiStats(),
     getVendors(),
+    db.select({ status: aiTable.status, count: countFn() }).from(aiTable).groupBy(aiTable.status),
   ]);
 
   return (
@@ -56,6 +61,12 @@ export default async function AiPage({ searchParams }: Props) {
           <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Total Initiatives</p>
         </div>
       </div>
+
+      {aiStatusDist.length > 0 && (
+        <div className="mt-6">
+          <AiStatusChart data={aiStatusDist.map(d => ({ status: d.status, count: d.count }))} />
+        </div>
+      )}
 
       <div className="mt-6 space-y-5">
         <Suspense>

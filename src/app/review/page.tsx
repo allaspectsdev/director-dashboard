@@ -13,6 +13,10 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
+  Shield,
+  ShieldAlert,
+  Users,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { CopyDigestButton } from "@/components/review/copy-digest-button";
@@ -211,6 +215,96 @@ export default async function ReviewPage({ searchParams }: Props) {
             </div>
           </div>
         )}
+
+        {/* Cross-module sections */}
+        {(data.securityResolved.length > 0 || data.securityOpened.length > 0) && (
+          <div className="animate-fade-up stagger-6">
+            <h2 className="text-[14px] font-semibold mb-3 flex items-center gap-2">
+              <Shield className="h-4 w-4 text-red-500" />
+              Security & Compliance
+            </h2>
+            <div className="space-y-1.5">
+              {data.securityResolved.map((item) => (
+                <div key={`sec-r-${item.id}`} className="flex items-center gap-2 rounded-lg border border-emerald-200/50 bg-emerald-50/50 dark:border-emerald-900/30 dark:bg-emerald-950/20 px-3 py-2 text-[13px]">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <span className="text-muted-foreground">Resolved:</span>
+                  <span className="font-medium">{item.title}</span>
+                </div>
+              ))}
+              {data.securityOpened.map((item) => (
+                <div key={`sec-o-${item.id}`} className="flex items-center gap-2 rounded-lg border border-red-200/50 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/20 px-3 py-2 text-[13px]">
+                  <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                  <span className="text-muted-foreground">New:</span>
+                  <span className="font-medium">{item.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(data.risksIdentified.length > 0 || data.risksClosed.length > 0) && (
+          <div className="animate-fade-up stagger-7">
+            <h2 className="text-[14px] font-semibold mb-3 flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 text-amber-500" />
+              Risk Register
+            </h2>
+            <div className="space-y-1.5">
+              {data.risksIdentified.map((risk) => (
+                <div key={`risk-i-${risk.id}`} className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px]">
+                  <PlusCircle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span className="font-medium">{risk.title}</span>
+                </div>
+              ))}
+              {data.risksClosed.map((risk) => (
+                <div key={`risk-c-${risk.id}`} className="flex items-center gap-2 rounded-lg border border-emerald-200/50 bg-emerald-50/50 dark:border-emerald-900/30 dark:bg-emerald-950/20 px-3 py-2 text-[13px]">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <span className="text-muted-foreground">Closed:</span>
+                  <span className="font-medium">{risk.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {data.meetingsHeld.length > 0 && (
+          <div className="animate-fade-up stagger-8">
+            <h2 className="text-[14px] font-semibold mb-3 flex items-center gap-2">
+              <Users className="h-4 w-4 text-blue-500" />
+              1:1 Meetings This Week
+            </h2>
+            <div className="space-y-1.5">
+              {data.meetingsHeld.map(({ meeting, memberName }) => (
+                <div key={meeting.id} className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px]">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                  <span className="font-medium">{memberName}</span>
+                  <span className="text-muted-foreground ml-auto text-[11px]">{formatDateShort(meeting.meetingDate)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {data.vendorRenewals.length > 0 && (
+          <div className="animate-fade-up stagger-8">
+            <h2 className="text-[14px] font-semibold mb-3 flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-amber-500" />
+              Upcoming Vendor Renewals
+            </h2>
+            <div className="space-y-1.5">
+              {data.vendorRenewals.map((vendor) => (
+                <div key={vendor.id} className="flex items-center gap-2 rounded-lg border border-amber-200/50 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/20 px-3 py-2 text-[13px]">
+                  <Building2 className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span className="font-medium">{vendor.name}</span>
+                  {vendor.contractEnd && (
+                    <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 ml-auto">
+                      Renews {formatDateShort(vendor.contractEnd)}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -251,6 +345,44 @@ function generateDigest(data: Awaited<ReturnType<typeof getWeeklyReview>>, weekL
     lines.push("NEEDS ATTENTION (Overdue):");
     for (const task of data.tasksOverdue) {
       lines.push(`  - ${task.title} (due ${formatDateShort(task.dueDate)})`);
+    }
+    lines.push("");
+  }
+
+  if (data.securityResolved.length > 0 || data.securityOpened.length > 0) {
+    lines.push("SECURITY & COMPLIANCE:");
+    for (const item of data.securityResolved) {
+      lines.push(`  [Resolved] ${item.title}`);
+    }
+    for (const item of data.securityOpened) {
+      lines.push(`  [New] ${item.title} (${item.severity})`);
+    }
+    lines.push("");
+  }
+
+  if (data.risksIdentified.length > 0 || data.risksClosed.length > 0) {
+    lines.push("RISK REGISTER:");
+    for (const risk of data.risksIdentified) {
+      lines.push(`  [New Risk] ${risk.title}`);
+    }
+    for (const risk of data.risksClosed) {
+      lines.push(`  [Closed] ${risk.title}`);
+    }
+    lines.push("");
+  }
+
+  if (data.meetingsHeld.length > 0) {
+    lines.push("1:1 MEETINGS:");
+    for (const { memberName, meeting } of data.meetingsHeld) {
+      lines.push(`  - ${memberName} (${formatDateShort(meeting.meetingDate)})`);
+    }
+    lines.push("");
+  }
+
+  if (data.vendorRenewals.length > 0) {
+    lines.push("VENDOR RENEWALS:");
+    for (const vendor of data.vendorRenewals) {
+      lines.push(`  - ${vendor.name} — renews ${formatDateShort(vendor.contractEnd)}`);
     }
     lines.push("");
   }

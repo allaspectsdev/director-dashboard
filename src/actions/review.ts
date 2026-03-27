@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { tasks, milestones, projects } from "@/db/schema";
-import { eq, sql, and, desc, asc } from "drizzle-orm";
+import { tasks, milestones, projects, securityItems, aiInitiatives, risks, oneOnOnes, teamMembers, vendors } from "@/db/schema";
+import { eq, sql, and, desc, asc, count } from "drizzle-orm";
 import { startOfWeek, endOfWeek, addWeeks, format } from "date-fns";
 
 export async function getWeeklyReview(weekOffset = 0) {
@@ -73,6 +73,20 @@ export async function getWeeklyReview(weekOffset = 0) {
     completedByProject.set(key, existing);
   }
 
+  // Cross-module data
+  const [secResolved, secOpened, risksIdentified, risksClosed, meetingsHeld, vendorRenewals] =
+    await Promise.all([
+      db.select().from(securityItems).where(sql`${securityItems.resolvedDate} >= ${weekStart} AND ${securityItems.resolvedDate} <= ${weekEnd}`),
+      db.select().from(securityItems).where(sql`date(${securityItems.createdAt}) >= ${weekStart} AND date(${securityItems.createdAt}) <= ${weekEnd}`),
+      db.select().from(risks).where(sql`date(${risks.createdAt}) >= ${weekStart} AND date(${risks.createdAt}) <= ${weekEnd}`),
+      db.select().from(risks).where(sql`${risks.status} = 'closed' AND date(${risks.updatedAt}) >= ${weekStart} AND date(${risks.updatedAt}) <= ${weekEnd}`),
+      db.select({ meeting: oneOnOnes, memberName: teamMembers.name })
+        .from(oneOnOnes)
+        .innerJoin(teamMembers, eq(oneOnOnes.teamMemberId, teamMembers.id))
+        .where(sql`${oneOnOnes.meetingDate} >= ${weekStart} AND ${oneOnOnes.meetingDate} <= ${weekEnd}`),
+      db.select().from(vendors).where(sql`${vendors.status} = 'active' AND ${vendors.contractEnd} >= ${weekStart} AND ${vendors.contractEnd} <= ${nextWeekEnd}`),
+    ]);
+
   return {
     weekStart,
     weekEnd,
@@ -88,5 +102,11 @@ export async function getWeeklyReview(weekOffset = 0) {
         tasks: projectTasks,
       })
     ),
+    securityResolved: secResolved,
+    securityOpened: secOpened,
+    risksIdentified,
+    risksClosed,
+    meetingsHeld,
+    vendorRenewals,
   };
 }
