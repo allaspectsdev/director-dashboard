@@ -1,13 +1,24 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { AiForm } from "@/components/ai/ai-form";
 import { AiCard } from "@/components/ai/ai-card";
+import { AiFilters } from "@/components/ai/ai-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getAiInitiatives, getAiStats } from "@/actions/ai-initiatives";
 import { Brain, Rocket, FlaskConical } from "lucide-react";
 
-export default async function AiPage() {
+interface Props {
+  searchParams: Promise<{ category?: string; status?: string; search?: string }>;
+}
+
+export default async function AiPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [initiatives, stats] = await Promise.all([
-    getAiInitiatives(),
+    getAiInitiatives({
+      category: params.category || undefined,
+      status: params.status || undefined,
+      search: params.search || undefined,
+    }),
     getAiStats(),
   ]);
 
@@ -44,7 +55,10 @@ export default async function AiPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <AiFilters />
+        </Suspense>
         {initiatives.length === 0 ? (
           <EmptyState
             icon={Brain}

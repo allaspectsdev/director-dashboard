@@ -10,11 +10,13 @@ export async function getSecurityItems(filters?: {
   category?: SecurityCategory;
   severity?: SecuritySeverity;
   status?: SecurityStatus;
+  search?: string;
 }) {
   const conditions = [];
   if (filters?.category) conditions.push(eq(securityItems.category, filters.category));
   if (filters?.severity) conditions.push(eq(securityItems.severity, filters.severity));
   if (filters?.status) conditions.push(eq(securityItems.status, filters.status));
+  if (filters?.search) conditions.push(sql`(${securityItems.title} LIKE ${'%' + filters.search + '%'} OR ${securityItems.description} LIKE ${'%' + filters.search + '%'})`);
 
   return db
     .select()

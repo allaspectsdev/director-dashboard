@@ -5,10 +5,15 @@ import { notes } from "@/db/schema";
 import { eq, desc, asc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getNotes() {
+export async function getNotes(filters?: { search?: string; pinned?: boolean }) {
+  const conditions = [];
+  if (filters?.search) conditions.push(sql`(${notes.title} LIKE ${'%' + filters.search + '%'} OR ${notes.content} LIKE ${'%' + filters.search + '%'})`);
+  if (filters?.pinned) conditions.push(eq(notes.isPinned, true));
+
   return db
     .select()
     .from(notes)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(
       desc(sql`${notes.isPinned}`),
       desc(notes.updatedAt)

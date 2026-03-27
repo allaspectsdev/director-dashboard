@@ -6,10 +6,15 @@ import { eq, desc, asc, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { GoalStatus } from "@/types";
 
-export async function getGoals() {
+export async function getGoals(filters?: { status?: GoalStatus; search?: string }) {
+  const conditions = [];
+  if (filters?.status) conditions.push(eq(goals.status, filters.status));
+  if (filters?.search) conditions.push(sql`(${goals.title} LIKE ${'%' + filters.search + '%'} OR ${goals.description} LIKE ${'%' + filters.search + '%'})`);
+
   const allGoals = await db
     .select()
     .from(goals)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(asc(sql`CASE WHEN ${goals.status} = 'active' THEN 0 ELSE 1 END`), desc(goals.createdAt));
 
   const withDetails = await Promise.all(

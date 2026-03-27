@@ -1,14 +1,26 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { ProjectForm } from "@/components/projects/project-form";
 import { ProjectCard } from "@/components/projects/project-card";
 import { ProjectTimeline } from "@/components/projects/project-timeline";
+import { ProjectFilters } from "@/components/projects/project-filters";
 import { getProjectsWithStats } from "@/actions/projects";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FolderKanban } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { ProjectStatus } from "@/types";
 
-export default async function ProjectsPage() {
-  const projects = await getProjectsWithStats();
+interface Props {
+  searchParams: Promise<{ status?: string; priority?: string; search?: string }>;
+}
+
+export default async function ProjectsPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const projects = await getProjectsWithStats({
+    status: params.status as ProjectStatus | undefined,
+    priority: params.priority || undefined,
+    search: params.search || undefined,
+  });
 
   return (
     <div>
@@ -16,7 +28,10 @@ export default async function ProjectsPage() {
         <ProjectForm />
       </Header>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <ProjectFilters />
+        </Suspense>
         {projects.length === 0 ? (
           <EmptyState
             icon={FolderKanban}

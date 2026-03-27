@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { TeamMemberForm } from "@/components/team/team-member-form";
 import { TeamMemberCard } from "@/components/team/team-member-card";
+import { TeamFilters } from "@/components/team/team-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getTeamMembers, getTeamStats } from "@/actions/team";
 import { Users } from "lucide-react";
@@ -9,9 +11,18 @@ import { oneOnOnes } from "@/db/schema";
 import { eq, desc, count } from "drizzle-orm";
 import { formatDateShort } from "@/lib/dates";
 
-export default async function TeamPage() {
+interface Props {
+  searchParams: Promise<{ department?: string; status?: string; search?: string }>;
+}
+
+export default async function TeamPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [members, stats] = await Promise.all([
-    getTeamMembers(),
+    getTeamMembers({
+      department: params.department || undefined,
+      status: params.status || undefined,
+      search: params.search || undefined,
+    }),
     getTeamStats(),
   ]);
 
@@ -65,7 +76,10 @@ export default async function TeamPage() {
         ))}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <TeamFilters />
+        </Suspense>
         {members.length === 0 ? (
           <EmptyState
             icon={Users}

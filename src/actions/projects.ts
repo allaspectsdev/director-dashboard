@@ -6,12 +6,20 @@ import { eq, desc, asc, sql, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { ProjectStatus } from "@/types";
 
-export async function getProjects(status?: ProjectStatus) {
-  const conditions = status ? eq(projects.status, status) : undefined;
+export async function getProjects(filters?: {
+  status?: ProjectStatus;
+  priority?: string;
+  search?: string;
+}) {
+  const conditions = [];
+  if (filters?.status) conditions.push(eq(projects.status, filters.status));
+  if (filters?.priority) conditions.push(eq(projects.priority, filters.priority as any));
+  if (filters?.search) conditions.push(sql`(${projects.name} LIKE ${'%' + filters.search + '%'} OR ${projects.description} LIKE ${'%' + filters.search + '%'})`);
+
   return db
     .select()
     .from(projects)
-    .where(conditions)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(asc(projects.sortOrder), desc(projects.createdAt));
 }
 
@@ -42,8 +50,8 @@ export async function getProjectWithDetails(id: number) {
   return { ...project, milestones: projectMilestones, tasks: projectTasks };
 }
 
-export async function getProjectsWithStats() {
-  const allProjects = await getProjects();
+export async function getProjectsWithStats(filters?: Parameters<typeof getProjects>[0]) {
+  const allProjects = await getProjects(filters);
   const stats = await Promise.all(
     allProjects.map(async (project) => {
       const [milestoneStats] = await db

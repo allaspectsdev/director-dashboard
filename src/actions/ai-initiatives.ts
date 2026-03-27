@@ -5,10 +5,16 @@ import { aiInitiatives } from "@/db/schema";
 import { eq, desc, sql, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getAiInitiatives() {
+export async function getAiInitiatives(filters?: { category?: string; status?: string; search?: string }) {
+  const conditions = [];
+  if (filters?.category) conditions.push(eq(aiInitiatives.category, filters.category as any));
+  if (filters?.status) conditions.push(eq(aiInitiatives.status, filters.status as any));
+  if (filters?.search) conditions.push(sql`(${aiInitiatives.name} LIKE ${'%' + filters.search + '%'} OR ${aiInitiatives.description} LIKE ${'%' + filters.search + '%'})`);
+
   return db
     .select()
     .from(aiInitiatives)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(
       sql`CASE ${aiInitiatives.status} WHEN 'deployed' THEN 0 WHEN 'testing' THEN 1 WHEN 'development' THEN 2 WHEN 'ideation' THEN 3 WHEN 'retired' THEN 4 END`,
       desc(aiInitiatives.updatedAt)

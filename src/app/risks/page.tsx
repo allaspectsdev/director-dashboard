@@ -1,13 +1,24 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { RiskForm } from "@/components/risks/risk-form";
 import { RiskCard } from "@/components/risks/risk-card";
+import { RiskFilters } from "@/components/risks/risk-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getRisks, getRiskStats } from "@/actions/risks";
 import { ShieldAlert, AlertTriangle, AlertCircle, Info } from "lucide-react";
 
-export default async function RisksPage() {
+interface Props {
+  searchParams: Promise<{ category?: string; status?: string; search?: string }>;
+}
+
+export default async function RisksPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [riskList, stats] = await Promise.all([
-    getRisks(),
+    getRisks({
+      category: params.category || undefined,
+      status: params.status || undefined,
+      search: params.search || undefined,
+    }),
     getRiskStats(),
   ]);
 
@@ -94,7 +105,10 @@ export default async function RisksPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <RiskFilters />
+        </Suspense>
         {riskList.length === 0 ? (
           <EmptyState
             icon={ShieldAlert}

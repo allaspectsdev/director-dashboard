@@ -1,14 +1,25 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { GoalForm } from "@/components/goals/goal-form";
 import { GoalCard } from "@/components/goals/goal-card";
+import { GoalFilters } from "@/components/goals/goal-filters";
 import { getGoals } from "@/actions/goals";
 import { getProjects } from "@/actions/projects";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Target } from "lucide-react";
+import type { GoalStatus } from "@/types";
 
-export default async function GoalsPage() {
+interface Props {
+  searchParams: Promise<{ status?: string; search?: string }>;
+}
+
+export default async function GoalsPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [goals, allProjects] = await Promise.all([
-    getGoals(),
+    getGoals({
+      status: params.status as GoalStatus | undefined,
+      search: params.search || undefined,
+    }),
     getProjects(),
   ]);
 
@@ -21,7 +32,10 @@ export default async function GoalsPage() {
         <GoalForm projects={allProjects} />
       </Header>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <GoalFilters />
+        </Suspense>
         {goals.length === 0 ? (
           <EmptyState
             icon={Target}

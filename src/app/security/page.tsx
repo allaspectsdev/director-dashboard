@@ -1,13 +1,26 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { SecurityForm } from "@/components/security/security-form";
 import { SecurityCard } from "@/components/security/security-card";
+import { SecurityFilters } from "@/components/security/security-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getSecurityItems, getSecurityStats } from "@/actions/security";
 import { Shield, AlertTriangle, AlertCircle, Clock } from "lucide-react";
+import type { SecurityCategory, SecuritySeverity, SecurityStatus } from "@/types";
 
-export default async function SecurityPage() {
+interface Props {
+  searchParams: Promise<{ category?: string; severity?: string; status?: string; search?: string }>;
+}
+
+export default async function SecurityPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [items, stats] = await Promise.all([
-    getSecurityItems(),
+    getSecurityItems({
+      category: params.category as SecurityCategory | undefined,
+      severity: params.severity as SecuritySeverity | undefined,
+      status: params.status as SecurityStatus | undefined,
+      search: params.search || undefined,
+    }),
     getSecurityStats(),
   ]);
 
@@ -52,7 +65,10 @@ export default async function SecurityPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <SecurityFilters />
+        </Suspense>
         {items.length === 0 ? (
           <EmptyState
             icon={Shield}

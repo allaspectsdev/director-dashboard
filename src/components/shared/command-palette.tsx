@@ -26,9 +26,10 @@ import {
   Brain,
   Building2,
   Users,
+  ShieldAlert,
 } from "lucide-react";
 import { globalSearch } from "@/actions/search";
-import type { Task, Project, Conversation, Note } from "@/types";
+import type { Task, Project, Conversation, Note, SecurityItem, AiInitiative, Vendor, TeamMember, Risk } from "@/types";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard, shortcut: "1" },
@@ -49,6 +50,11 @@ interface SearchResults {
   projects: Project[];
   conversations: Conversation[];
   notes: Note[];
+  securityItems: SecurityItem[];
+  aiInitiatives: AiInitiative[];
+  vendors: Vendor[];
+  teamMembers: TeamMember[];
+  risks: Risk[];
 }
 
 export function CommandPalette() {
@@ -114,7 +120,12 @@ export function CommandPalette() {
     (results.tasks.length > 0 ||
       results.projects.length > 0 ||
       results.conversations.length > 0 ||
-      results.notes.length > 0);
+      results.notes.length > 0 ||
+      results.securityItems.length > 0 ||
+      results.aiInitiatives.length > 0 ||
+      results.vendors.length > 0 ||
+      results.teamMembers.length > 0 ||
+      results.risks.length > 0);
 
   return (
     <CommandDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setQuery(""); setResults(null); } }}>
@@ -184,6 +195,60 @@ export function CommandPalette() {
                   >
                     <StickyNote className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
                     <span className="truncate">{note.title || "Untitled"}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.securityItems.length > 0 && (
+              <CommandGroup heading="Security">
+                {results.securityItems.map((item) => (
+                  <CommandItem key={`sec-${item.id}`} onSelect={() => navigate("/security")}>
+                    <Shield className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{item.title}</span>
+                    <span className="ml-auto text-[10px] text-muted-foreground capitalize">{item.severity}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.aiInitiatives.length > 0 && (
+              <CommandGroup heading="AI Initiatives">
+                {results.aiInitiatives.map((ai) => (
+                  <CommandItem key={`ai-${ai.id}`} onSelect={() => navigate("/ai")}>
+                    <Brain className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{ai.name}</span>
+                    <span className="ml-auto text-[10px] text-muted-foreground capitalize">{ai.status}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.vendors.length > 0 && (
+              <CommandGroup heading="Vendors">
+                {results.vendors.map((v) => (
+                  <CommandItem key={`vendor-${v.id}`} onSelect={() => navigate("/vendors")}>
+                    <Building2 className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{v.name}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.teamMembers.length > 0 && (
+              <CommandGroup heading="Team">
+                {results.teamMembers.map((tm) => (
+                  <CommandItem key={`team-${tm.id}`} onSelect={() => navigate(`/team/${tm.id}`)}>
+                    <Users className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{tm.name}</span>
+                    <span className="ml-auto text-[10px] text-muted-foreground">{tm.role}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.risks.length > 0 && (
+              <CommandGroup heading="Risks">
+                {results.risks.map((risk) => (
+                  <CommandItem key={`risk-${risk.id}`} onSelect={() => navigate("/risks")}>
+                    <ShieldAlert className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{risk.title}</span>
+                    <span className="ml-auto text-[10px] text-muted-foreground capitalize">{risk.status}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

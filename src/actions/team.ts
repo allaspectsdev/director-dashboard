@@ -5,10 +5,16 @@ import { teamMembers, oneOnOnes } from "@/db/schema";
 import { eq, desc, sql, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getTeamMembers() {
+export async function getTeamMembers(filters?: { department?: string; status?: string; search?: string }) {
+  const conditions = [];
+  if (filters?.department) conditions.push(eq(teamMembers.department, filters.department as any));
+  if (filters?.status) conditions.push(eq(teamMembers.status, filters.status as any));
+  if (filters?.search) conditions.push(sql`(${teamMembers.name} LIKE ${'%' + filters.search + '%'} OR ${teamMembers.role} LIKE ${'%' + filters.search + '%'})`);
+
   return db
     .select()
     .from(teamMembers)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(
       sql`CASE ${teamMembers.status} WHEN 'active' THEN 0 WHEN 'on-leave' THEN 1 WHEN 'offboarded' THEN 2 END`,
       teamMembers.name

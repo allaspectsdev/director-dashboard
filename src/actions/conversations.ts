@@ -12,10 +12,15 @@ import { eq, desc, asc, count, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { ConversationStatus } from "@/types";
 
-export async function getConversations() {
+export async function getConversations(filters?: { status?: ConversationStatus; search?: string }) {
+  const conditions = [];
+  if (filters?.status) conditions.push(eq(conversations.status, filters.status));
+  if (filters?.search) conditions.push(sql`(${conversations.topic} LIKE ${'%' + filters.search + '%'} OR ${conversations.summary} LIKE ${'%' + filters.search + '%'})`);
+
   const allConvos = await db
     .select()
     .from(conversations)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(
       asc(sql`CASE WHEN ${conversations.status} = 'resolved' THEN 1 ELSE 0 END`),
       desc(conversations.updatedAt)

@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
 import { VendorForm } from "@/components/vendors/vendor-form";
 import { VendorCard } from "@/components/vendors/vendor-card";
+import { VendorFilters } from "@/components/vendors/vendor-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getVendors, getVendorStats } from "@/actions/vendors";
 import { Building2, DollarSign, CalendarClock } from "lucide-react";
@@ -14,9 +16,18 @@ function formatCurrency(cents: number): string {
   }).format(cents / 100);
 }
 
-export default async function VendorsPage() {
+interface Props {
+  searchParams: Promise<{ category?: string; status?: string; search?: string }>;
+}
+
+export default async function VendorsPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [vendorList, stats] = await Promise.all([
-    getVendors(),
+    getVendors({
+      category: params.category || undefined,
+      status: params.status || undefined,
+      search: params.search || undefined,
+    }),
     getVendorStats(),
   ]);
 
@@ -55,7 +66,10 @@ export default async function VendorsPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <VendorFilters />
+        </Suspense>
         {vendorList.length === 0 ? (
           <EmptyState
             icon={Building2}

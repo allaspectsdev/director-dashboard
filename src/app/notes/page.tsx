@@ -1,12 +1,22 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/header";
-import { getNotes, createNote } from "@/actions/notes";
+import { getNotes } from "@/actions/notes";
 import { NoteCard } from "@/components/notes/note-card";
+import { NoteFilters } from "@/components/notes/note-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StickyNote } from "lucide-react";
 import { NewNoteButton } from "./new-note-button";
 
-export default async function NotesPage() {
-  const notesList = await getNotes();
+interface Props {
+  searchParams: Promise<{ search?: string; pinned?: string }>;
+}
+
+export default async function NotesPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const notesList = await getNotes({
+    search: params.search || undefined,
+    pinned: params.pinned === "true" ? true : undefined,
+  });
 
   return (
     <div>
@@ -17,7 +27,10 @@ export default async function NotesPage() {
         <NewNoteButton />
       </Header>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-5">
+        <Suspense>
+          <NoteFilters />
+        </Suspense>
         {notesList.length === 0 ? (
           <EmptyState
             icon={StickyNote}

@@ -5,10 +5,16 @@ import { risks } from "@/db/schema";
 import { eq, desc, sql, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getRisks() {
+export async function getRisks(filters?: { category?: string; status?: string; search?: string }) {
+  const conditions = [];
+  if (filters?.category) conditions.push(eq(risks.category, filters.category as any));
+  if (filters?.status) conditions.push(eq(risks.status, filters.status as any));
+  if (filters?.search) conditions.push(sql`(${risks.title} LIKE ${'%' + filters.search + '%'} OR ${risks.description} LIKE ${'%' + filters.search + '%'})`);
+
   return db
     .select()
     .from(risks)
+    .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
     .orderBy(
       sql`CASE ${risks.status} WHEN 'identified' THEN 0 WHEN 'assessing' THEN 1 WHEN 'mitigating' THEN 2 WHEN 'monitoring' THEN 3 WHEN 'closed' THEN 4 END`,
       desc(sql`${risks.likelihood} * ${risks.impact}`),
