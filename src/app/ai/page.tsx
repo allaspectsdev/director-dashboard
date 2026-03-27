@@ -5,6 +5,7 @@ import { AiCard } from "@/components/ai/ai-card";
 import { AiFilters } from "@/components/ai/ai-filters";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getAiInitiatives, getAiStats } from "@/actions/ai-initiatives";
+import { getVendors } from "@/actions/vendors";
 import { Brain, Rocket, FlaskConical } from "lucide-react";
 
 interface Props {
@@ -13,13 +14,14 @@ interface Props {
 
 export default async function AiPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [initiatives, stats] = await Promise.all([
+  const [initiatives, stats, vendorList] = await Promise.all([
     getAiInitiatives({
       category: params.category || undefined,
       status: params.status || undefined,
       search: params.search || undefined,
     }),
     getAiStats(),
+    getVendors(),
   ]);
 
   return (
@@ -28,7 +30,7 @@ export default async function AiPage({ searchParams }: Props) {
         title="AI Initiatives"
         description="Track AI projects, experiments, and deployed solutions across the organization."
       >
-        <AiForm />
+        <AiForm vendors={vendorList} />
       </Header>
 
       <div className="mt-6 grid grid-cols-3 gap-3">

@@ -15,15 +15,16 @@ import {
 import { AI_CATEGORIES, AI_STATUSES } from "@/lib/constants";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import type { AiInitiative } from "@/types";
+import type { AiInitiative, Vendor } from "@/types";
 
 interface AiFormProps {
   initiative?: AiInitiative;
+  vendors?: Vendor[];
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export function AiForm({ initiative, open: controlledOpen, onOpenChange: controlledOnOpenChange }: AiFormProps) {
+export function AiForm({ initiative, vendors, open: controlledOpen, onOpenChange: controlledOnOpenChange }: AiFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +45,7 @@ export function AiForm({ initiative, open: controlledOpen, onOpenChange: control
       department: (fd.get("department") as string) || undefined,
       impact: (fd.get("impact") as string) || undefined,
       roiEstimate: (fd.get("roiEstimate") as string) || undefined,
+      vendorId: fd.get("vendorId") && fd.get("vendorId") !== "none" ? Number(fd.get("vendorId")) : undefined,
       startDate: (fd.get("startDate") as string) || undefined,
       launchDate: (fd.get("launchDate") as string) || undefined,
     };
@@ -119,6 +121,20 @@ export function AiForm({ initiative, open: controlledOpen, onOpenChange: control
               <Input id="department" name="department" defaultValue={initiative?.department || ""} placeholder="R&D, IT, Operations..." />
             </div>
           </div>
+          {vendors && vendors.length > 0 && (
+            <div className="space-y-2">
+              <Label>Vendor</Label>
+              <Select name="vendorId" defaultValue={(initiative as any)?.vendorId?.toString() || "none"}>
+                <SelectTrigger><SelectValue placeholder="Select vendor..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id.toString()}>{v.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="impact">Business Impact</Label>
             <Textarea id="impact" name="impact" defaultValue={initiative?.impact || ""} placeholder="Expected business impact..." rows={2} />

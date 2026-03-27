@@ -19,6 +19,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { useSidebar } from "./sidebar-context";
+import {
+  Sheet,
+  SheetContent,
+} from "@/components/ui/sheet";
 
 const navSections = [
   {
@@ -55,11 +60,12 @@ const navSections = [
   },
 ];
 
-export function AppSidebar() {
+function SidebarContent() {
   const pathname = usePathname();
+  const { close, isMobile } = useSidebar();
 
   return (
-    <aside className="flex h-screen w-[232px] flex-col border-r border-sidebar-border bg-sidebar">
+    <>
       {/* Brand */}
       <div className="px-5 pt-6 pb-4">
         <div className="flex items-center gap-3">
@@ -96,6 +102,7 @@ export function AppSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      onClick={isMobile ? close : undefined}
                       className={cn(
                         "group relative flex items-center gap-3 rounded-lg px-3 py-[9px] text-[13px] font-medium transition-all duration-200",
                         isActive
@@ -134,11 +141,35 @@ export function AppSidebar() {
         </button>
         <div className="flex items-center justify-between px-1">
           <span className="text-[11px] font-medium text-sidebar-foreground/35">
-            v2.0
+            v3.0
           </span>
           <ThemeToggle />
         </div>
       </div>
+    </>
+  );
+}
+
+export function AppSidebar() {
+  const { isOpen, close, isMobile } = useSidebar();
+
+  if (isMobile) {
+    return (
+      <Sheet open={isOpen} onOpenChange={(open) => { if (!open) close(); }}>
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          className="w-[260px] p-0 bg-sidebar border-sidebar-border"
+        >
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <aside className="hidden lg:flex h-screen w-[232px] flex-shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+      <SidebarContent />
     </aside>
   );
 }

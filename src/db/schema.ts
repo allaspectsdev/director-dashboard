@@ -216,7 +216,7 @@ export const entityTags = sqliteTable(
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
     entityType: text("entity_type", {
-      enum: ["task", "project", "conversation"],
+      enum: ["task", "project", "conversation", "security", "ai", "vendor", "risk", "team-member"],
     }).notNull(),
     entityId: integer("entity_id").notNull(),
   },
@@ -291,6 +291,7 @@ export const aiInitiatives = sqliteTable("ai_initiatives", {
   department: text("department"), // which team uses this
   impact: text("impact"), // description of business impact
   roiEstimate: text("roi_estimate"),
+  vendorId: integer("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
   projectId: integer("project_id").references(() => projects.id, { onDelete: "set null" }),
   startDate: text("start_date"),
   launchDate: text("launch_date"),

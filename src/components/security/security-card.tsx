@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { deleteSecurityItem, updateSecurityItem } from "@/actions/security";
+import { createTask } from "@/actions/tasks";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { formatDateShort } from "@/lib/dates";
-import { MoreHorizontal, Pencil, Trash2, Shield, AlertTriangle } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Shield, AlertTriangle, ListPlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +76,16 @@ export function SecurityCard({ item }: SecurityCardProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={async () => {
+                await createTask({
+                  title: `[Security] ${item.title}`,
+                  description: `Remediation task for ${item.category}: ${item.description || item.title}`,
+                  priority: item.severity === "critical" ? "urgent" : item.severity === "high" ? "high" : "medium",
+                });
+                toast.success("Remediation task created");
+              }}>
+                <ListPlus className="mr-2 h-4 w-4" />Create Task
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={() => { deleteSecurityItem(item.id); toast.success("Deleted"); }}>
                 <Trash2 className="mr-2 h-4 w-4" />Delete

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { deleteRisk } from "@/actions/risks";
+import { createTask } from "@/actions/tasks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Pencil, Trash2, ShieldAlert } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, ShieldAlert, ListPlus } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -54,6 +55,17 @@ export function RiskCard({ risk }: RiskCardProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={async () => {
+                const score = risk.likelihood * risk.impact;
+                await createTask({
+                  title: `[Risk] ${risk.title}`,
+                  description: risk.mitigationPlan || `Mitigation task for ${risk.category} risk (score: ${score})`,
+                  priority: score >= 20 ? "urgent" : score >= 12 ? "high" : "medium",
+                });
+                toast.success("Mitigation task created");
+              }}>
+                <ListPlus className="mr-2 h-4 w-4" />Create Task
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={() => { deleteRisk(risk.id); toast.success("Deleted"); }}>
                 <Trash2 className="mr-2 h-4 w-4" />Delete

@@ -35,6 +35,7 @@ export async function createAiInitiative(data: {
   department?: string;
   impact?: string;
   roiEstimate?: string;
+  vendorId?: number | null;
   projectId?: number | null;
   startDate?: string;
   launchDate?: string;
@@ -48,6 +49,7 @@ export async function createAiInitiative(data: {
       status: (data.status || "ideation") as typeof aiInitiatives.$inferInsert.status,
       model: data.model || null,
       department: data.department || null,
+      vendorId: data.vendorId || null,
       impact: data.impact || null,
       roiEstimate: data.roiEstimate || null,
       projectId: data.projectId || null,

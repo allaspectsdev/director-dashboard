@@ -30,11 +30,16 @@ export async function deleteTag(id: number) {
   revalidatePath("/tasks");
   revalidatePath("/projects");
   revalidatePath("/conversations");
+  revalidatePath("/security");
+  revalidatePath("/ai");
+  revalidatePath("/vendors");
+  revalidatePath("/risks");
+  revalidatePath("/team");
 }
 
 export async function addTagToEntity(
   tagId: number,
-  entityType: "task" | "project" | "conversation",
+  entityType: "task" | "project" | "conversation" | "security" | "ai" | "vendor" | "risk" | "team-member",
   entityId: number
 ) {
   await db
@@ -44,11 +49,16 @@ export async function addTagToEntity(
   revalidatePath("/tasks");
   revalidatePath("/projects");
   revalidatePath("/conversations");
+  revalidatePath("/security");
+  revalidatePath("/ai");
+  revalidatePath("/vendors");
+  revalidatePath("/risks");
+  revalidatePath("/team");
 }
 
 export async function removeTagFromEntity(
   tagId: number,
-  entityType: "task" | "project" | "conversation",
+  entityType: "task" | "project" | "conversation" | "security" | "ai" | "vendor" | "risk" | "team-member",
   entityId: number
 ) {
   await db
@@ -59,10 +69,15 @@ export async function removeTagFromEntity(
   revalidatePath("/tasks");
   revalidatePath("/projects");
   revalidatePath("/conversations");
+  revalidatePath("/security");
+  revalidatePath("/ai");
+  revalidatePath("/vendors");
+  revalidatePath("/risks");
+  revalidatePath("/team");
 }
 
 export async function getTagsForEntity(
-  entityType: "task" | "project" | "conversation",
+  entityType: "task" | "project" | "conversation" | "security" | "ai" | "vendor" | "risk" | "team-member",
   entityId: number
 ) {
   const result = await db
@@ -76,7 +91,7 @@ export async function getTagsForEntity(
 }
 
 export async function getTagsForEntities(
-  entityType: "task" | "project" | "conversation",
+  entityType: "task" | "project" | "conversation" | "security" | "ai" | "vendor" | "risk" | "team-member",
   entityIds: number[]
 ) {
   if (entityIds.length === 0) return new Map<number, typeof tags.$inferSelect[]>();
