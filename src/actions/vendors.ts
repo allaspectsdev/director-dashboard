@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export async function getVendors(filters?: { category?: string; status?: string; search?: string }) {
   const conditions = [];
-  if (filters?.category) conditions.push(eq(vendors.category, filters.category as any));
-  if (filters?.status) conditions.push(eq(vendors.status, filters.status as any));
+  if (filters?.category) conditions.push(eq(vendors.category, filters.category as typeof vendors.$inferSelect.category));
+  if (filters?.status) conditions.push(eq(vendors.status, filters.status as typeof vendors.$inferSelect.status));
   if (filters?.search) conditions.push(sql`(${vendors.name} LIKE ${'%' + filters.search + '%'} OR ${vendors.description} LIKE ${'%' + filters.search + '%'})`);
 
   return db

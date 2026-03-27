@@ -13,7 +13,7 @@ export async function getProjects(filters?: {
 }) {
   const conditions = [];
   if (filters?.status) conditions.push(eq(projects.status, filters.status));
-  if (filters?.priority) conditions.push(eq(projects.priority, filters.priority as any));
+  if (filters?.priority) conditions.push(eq(projects.priority, filters.priority as typeof projects.$inferSelect.priority));
   if (filters?.search) conditions.push(sql`(${projects.name} LIKE ${'%' + filters.search + '%'} OR ${projects.description} LIKE ${'%' + filters.search + '%'})`);
 
   return db

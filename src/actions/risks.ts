@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export async function getRisks(filters?: { category?: string; status?: string; search?: string }) {
   const conditions = [];
-  if (filters?.category) conditions.push(eq(risks.category, filters.category as any));
-  if (filters?.status) conditions.push(eq(risks.status, filters.status as any));
+  if (filters?.category) conditions.push(eq(risks.category, filters.category as typeof risks.$inferSelect.category));
+  if (filters?.status) conditions.push(eq(risks.status, filters.status as typeof risks.$inferSelect.status));
   if (filters?.search) conditions.push(sql`(${risks.title} LIKE ${'%' + filters.search + '%'} OR ${risks.description} LIKE ${'%' + filters.search + '%'})`);
 
   return db

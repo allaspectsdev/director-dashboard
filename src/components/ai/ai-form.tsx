@@ -124,7 +124,7 @@ export function AiForm({ initiative, vendors, open: controlledOpen, onOpenChange
           {vendors && vendors.length > 0 && (
             <div className="space-y-2">
               <Label>Vendor</Label>
-              <Select name="vendorId" defaultValue={(initiative as any)?.vendorId?.toString() || "none"}>
+              <Select name="vendorId" defaultValue={(initiative as AiInitiative & { vendorId?: number })?.vendorId?.toString() || "none"}>
                 <SelectTrigger><SelectValue placeholder="Select vendor..." /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>

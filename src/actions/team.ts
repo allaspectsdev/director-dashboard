@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export async function getTeamMembers(filters?: { department?: string; status?: string; search?: string }) {
   const conditions = [];
-  if (filters?.department) conditions.push(eq(teamMembers.department, filters.department as any));
-  if (filters?.status) conditions.push(eq(teamMembers.status, filters.status as any));
+  if (filters?.department) conditions.push(eq(teamMembers.department, filters.department as typeof teamMembers.$inferSelect.department));
+  if (filters?.status) conditions.push(eq(teamMembers.status, filters.status as typeof teamMembers.$inferSelect.status));
   if (filters?.search) conditions.push(sql`(${teamMembers.name} LIKE ${'%' + filters.search + '%'} OR ${teamMembers.role} LIKE ${'%' + filters.search + '%'})`);
 
   return db

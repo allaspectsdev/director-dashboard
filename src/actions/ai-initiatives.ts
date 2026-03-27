@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export async function getAiInitiatives(filters?: { category?: string; status?: string; search?: string }) {
   const conditions = [];
-  if (filters?.category) conditions.push(eq(aiInitiatives.category, filters.category as any));
-  if (filters?.status) conditions.push(eq(aiInitiatives.status, filters.status as any));
+  if (filters?.category) conditions.push(eq(aiInitiatives.category, filters.category as typeof aiInitiatives.$inferSelect.category));
+  if (filters?.status) conditions.push(eq(aiInitiatives.status, filters.status as typeof aiInitiatives.$inferSelect.status));
   if (filters?.search) conditions.push(sql`(${aiInitiatives.name} LIKE ${'%' + filters.search + '%'} OR ${aiInitiatives.description} LIKE ${'%' + filters.search + '%'})`);
 
   return db
